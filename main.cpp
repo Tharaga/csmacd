@@ -1,5 +1,6 @@
 #include "lab1.h"
 
+// argument order is numStations, packetLength, rate, arrivalRate and then optional p for ppersistent
 void main(int argc, char* argv[])
 {
   srand(time(NULL));
