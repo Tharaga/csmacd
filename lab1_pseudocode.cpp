@@ -20,7 +20,7 @@ state(IDLE)
 {
 }
 
-Simulator::Simulator(Bus* bus, int id, int totalNumberOfStations, int transDelay, int arrivalRate, float tickDuration, int persistenceMode, float pval)
+Simulator::Simulator(Bus* bus, int id, int totalNumberOfStations, float transDelay, int arrivalRate, float tickDuration, int persistenceMode, float pval)
 {
   localAccessToBus = bus;
   stationID = id;
@@ -118,7 +118,7 @@ void Simulator::departure(float t) {
           isBusFree = false;
           //do nothing; (sensing medium) and the medium is busy
           if (isNonPersistent)
-            waitCounter = waitExpBackoff(currentI);
+            waitCounter = waitExpBackoff(currentI)/tick_duration;
         }
       }
       if(isBusFree){
@@ -144,7 +144,7 @@ void Simulator::detecting(){
             localAccessToBus->isCollision = true;
             currentI++;
             if (currentI < 10){
-              waitCounter = waitExpBackoff(currentI);
+              waitCounter = waitExpBackoff(currentI)/tick_duration;
               state = WAITING;
             }
             else{

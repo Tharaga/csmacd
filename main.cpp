@@ -8,25 +8,30 @@ void main(int argc, char* argv[])
   const int rate = atoi(argv[3]);
   const int arrivalRate = atoi(argv[4]);
   Persistence mode;
-  int p = 0;
+  float p = 0;
   if (argc > 5)
   {
-    p = atoi(argv[5]);
+    p = atof(argv[5]);
     mode = PPERSISTENT;
   }
   else
   {
     mode = NONPERSISTENT; 
   }
-  const int numberOfTicks = 50000;
+  const int numberOfTicks = 100000;
   const float tick_duration = 0.001;
-  
-  for (int numberOfStations = 20; numberOfStations <= 100; numberOfStations+=20){
+
+  for (int numberOfStations = 20; numberOfStations <= 100; numberOfStations += 20){
+    float totalThroughput = 0;
+    float totalDelay = 0;
+  for (int x = 0; x < 5; x++)
+  {
+
 
     std::map<int, Simulator> allStationsArray;
     Bus centralBus;
     centralBus.setTickDuration(tick_duration);
-    const int transmissionDelay = (packetLength / rate) * tick_duration;
+    const float transmissionDelay = ((float)packetLength / (float)rate) * tick_duration;
     for (int i = 1; i <= numberOfStations; i++){
       allStationsArray.insert(std::map<int, Simulator>::value_type(i, Simulator(&centralBus, i, numberOfStations, transmissionDelay, arrivalRate, tick_duration, mode, p)));
     }
@@ -38,15 +43,23 @@ void main(int argc, char* argv[])
       }
     }
     /*
-    std::cout << "Arrival rate is : " << a << std::endl;
     std::cout << "Size of Bus: " << centralBus.bus.size() << std::endl;
     std::cout << "Successful Packets: " << centralBus.successfulPacketCount << std::endl;
     std::cout << "Number of Collisions: " << centralBus.numberOfCollisions << std::endl;
-    std::cout << "Throughput: " << (centralBus.successfulPacketCount * packetLength) / (numberOfTicks*tick_duration) << std::endl;
-    std::cout << "Delay: " << centralBus.totalDelay / centralBus.successfulPacketCount << std::endl; */
+    */
+    float throughput = float(centralBus.successfulPacketCount * packetLength) / float(numberOfTicks*tick_duration);
+    float delay = (float)centralBus.totalDelay / (float)centralBus.successfulPacketCount;
+    totalThroughput += throughput;
+    totalDelay += delay;
+  /*  std::cout << "Throughput: " << throughput << std::endl;
+    std::cout << "Delay: " << delay << std::endl;
     std::cout << "Num of computers, Throughput, Delay" << std::endl;
-    std::cout << numberOfStations << "," << (centralBus.successfulPacketCount * packetLength) / (numberOfTicks*tick_duration) << "," << centralBus.totalDelay / centralBus.successfulPacketCount << std::endl;
-
+    std::cout << numberOfStations << "," << throughput << "," << delay << std::endl;*/
+    
+    }
+    std::cout << "Number of stations" <<  numberOfStations << std::endl;
+    std::cout << "Average throughput: " << totalThroughput / 5 << std::endl;
+    std::cout << "Average delay: " << totalDelay / 5 << std::endl;
   }
   std::cin.get();
 }

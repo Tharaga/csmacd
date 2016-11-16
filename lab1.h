@@ -9,7 +9,7 @@
 class Simulator
 {
 public:
-  Simulator(Bus* bus, int id, int numNodes, int transDelay, int arrivalWait, float tickDuration, int persistence, float p);
+  Simulator(Bus* bus, int id, int numNodes, float transDelay, int arrivalWait, float tickDuration, int persistence, float p);
   Simulator();
   ~Simulator();
 
@@ -32,8 +32,8 @@ private:
   int stationID;
   int numNodes;
   Bus* localAccessToBus;
-  int transmissionDelay;
-  int waitCounter;
+  float transmissionDelay;
+  float waitCounter;
   int currentI;
   int state;
 
