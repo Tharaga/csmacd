@@ -1,11 +1,11 @@
 #include "lab1.h"
 #include <math.h>
 
-static float waitExpBackoff(int i)
+static float waitExpBackoff(int i, float bitTime)
 {
   //srand(time(NULL));
   float r = (pow(double(2), double(i)) - 1) * ((float)rand() / (float)RAND_MAX);
-  return r * 512;
+  return r * 512 * bitTime;
 }
 
 
@@ -20,7 +20,7 @@ state(IDLE)
 {
 }
 
-Simulator::Simulator(Bus* bus, int id, int totalNumberOfStations, float transDelay, int arrivalRate, float tickDuration, int persistenceMode, float pval)
+Simulator::Simulator(Bus* bus, int id, int totalNumberOfStations, float transDelay, int arrivalRate, float tickDuration, int persistenceMode, float pval, float bit_time)
 {
   localAccessToBus = bus;
   stationID = id;
@@ -35,7 +35,7 @@ Simulator::Simulator(Bus* bus, int id, int totalNumberOfStations, float transDel
   lambda = arrivalRate;
   isInfiniteBuffer = true;
   tick_duration = tickDuration;
-
+  bitTime = bit_time;
   switch (persistenceMode)
   {
     case NONPERSISTENT:
@@ -122,7 +122,7 @@ void Simulator::departure(float t) {
           isBusFree = false;
           //do nothing; (sensing medium) and the medium is busy
           if (isNonPersistent)
-            waitCounter = waitExpBackoff(currentI)/tick_duration;
+            waitCounter = waitExpBackoff(currentI, bitTime)/tick_duration;
         }
       }
       if(isBusFree){
@@ -144,7 +144,7 @@ void Simulator::departure(float t) {
       {
         if (isPPersistent && isPPersistentAndHasWaited)
         {
-          waitCounter = waitExpBackoff(currentI) / tick_duration;
+          waitCounter = waitExpBackoff(currentI, bitTime) / tick_duration;
           isPPersistentAndHasWaited = false;
           return;
         }
@@ -167,7 +167,7 @@ void Simulator::detecting(){
             localAccessToBus->isCollision = true;
             currentI++;
             if (currentI < 10){
-              waitCounter = waitExpBackoff(currentI)/tick_duration;
+              waitCounter = waitExpBackoff(currentI, bitTime)/tick_duration;
               state = WAITING;
             }
             else{

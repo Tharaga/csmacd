@@ -9,7 +9,7 @@
 class Simulator
 {
 public:
-  Simulator(Bus* bus, int id, int numNodes, float transDelay, int arrivalWait, float tickDuration, int persistence, float p);
+  Simulator(Bus* bus, int id, int numNodes, float transDelay, int arrivalWait, float tickDuration, int persistence, float p, float bit_time);
   Simulator();
   ~Simulator();
 
@@ -42,6 +42,7 @@ private:
   bool isNonPersistent;
   bool isPPersistent;
   bool isPPersistentAndHasWaited;
+  float bitTime;
   float p;
 
 };
