@@ -23,6 +23,7 @@ public:
   std::queue<Packet> packet_queue;
 
 private:
+  float getRandomProbability();
   float numOfTicks;
   float lambda;
   int propogationSpeed; // default is 2*10^8
@@ -40,6 +41,7 @@ private:
   float tick_duration;
   bool isNonPersistent;
   bool isPPersistent;
+  bool isPPersistentAndHasWaited;
   float p;
 
 };

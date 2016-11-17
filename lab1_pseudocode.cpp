@@ -75,6 +75,10 @@ void Simulator::run(int curTick)
   }
 }
 
+float Simulator::getRandomProbability(){
+  return (float)rand() / (float)RAND_MAX; //generate random number between 0...+}
+}
+
 int Simulator::calc_arrival_time(){
   // 1 tick is interpreted as 1 ms
   double u = (double)rand() / (double)RAND_MAX; //generate random number between 0...1
@@ -122,9 +126,28 @@ void Simulator::departure(float t) {
         }
       }
       if(isBusFree){
+        if (isPPersistent && !isPPersistentAndHasWaited)
+        {
+          float randVal = getRandomProbability();
+          if (randVal > p)
+          {
+            waitCounter = 5;
+            isPPersistentAndHasWaited = true;
+            return;
+          }
+        }
         packet_queue.pop();
         localAccessToBus->bus.insert(std::make_pair(stationID, departingPacket));
         state = TRANSMITTING;
+      }
+      else
+      {
+        if (isPPersistent && isPPersistentAndHasWaited)
+        {
+          waitCounter = waitExpBackoff(currentI) / tick_duration;
+          isPPersistentAndHasWaited = false;
+          return;
+        }
       }
     }
   }

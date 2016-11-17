@@ -33,7 +33,7 @@ void Bus::decrementWaits(int curTick){
         }
         if (it->second.timeToLastBit.at(i) > 0)
           it->second.timeToLastBit[i] -= tick_duration;
-        if (it->second.senderID == i && it->second.timeToLastBit.at(i) <= 0 ){
+        if (it->second.timeToLastBit.at(0) <= 0 ){
           it->second.transmittedTime = curTick;
         }
       }
