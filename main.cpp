@@ -18,10 +18,10 @@ void main(int argc, char* argv[])
   {
     mode = NONPERSISTENT; 
   }
-  const int numberOfTicks = 10000;
+  const int numberOfTicks = 50000;
   const float tick_duration = 1/(pow(10,3));
   const float bit_time = 1 / float(rate);
-  for (int numberOfStations = 20; numberOfStations <= 100; numberOfStations += 20){
+  for (int arrivalRate = 1; arrivalRate <= 10; arrivalRate++ ){
     float totalThroughput = 0;
     float totalDelay = 0;
     for (int x = 0; x < 5; x++)
@@ -52,7 +52,7 @@ void main(int argc, char* argv[])
     totalThroughput += throughput;
     totalDelay += delay;
 
-    std::cout << "Number of stations " << numberOfStations << " throughput: " << throughput << " delay: " << delay << std::endl;
+    std::cout << "Arrival rate: " << arrivalRate << " throughput: " << throughput << " delay: " << delay << std::endl;
   /*  std::cout << "Throughput: " << throughput << std::endl;
     std::cout << "Delay: " << delay << std::endl;
     std::cout << "Num of computers, Throughput, Delay" << std::endl;

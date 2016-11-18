@@ -3,7 +3,12 @@
 
 static float waitExpBackoff(int i, float bitTime)
 {
-  //srand(time(NULL));
+  /*int r = 0;
+  int max = pow(double(2), double(i)) - 1;
+  //
+  if (max != 0) {
+    r = rand() % max;
+  }*/
   float r = (pow(double(2), double(i)) - 1) * ((float)rand() / (float)RAND_MAX);
   return r * 512 * bitTime;
 }
@@ -46,10 +51,9 @@ Simulator::Simulator(Bus* bus, int id, int totalNumberOfStations, float transDel
     case PPERSISTENT:
       isPPersistent = true;
       isNonPersistent = false;
+      isPPersistentAndHasWaited = false;
       p = pval;
-    default: // Assume 1-Persistent
-      isPPersistent = true;
-      p = 1;
+      break;
   }
 }
 
@@ -59,7 +63,6 @@ Simulator::~Simulator()
 
 void Simulator::run(int curTick)
 {
-
   generation(curTick);
   if (waitCounter > 0){
     waitCounter--;
@@ -76,7 +79,8 @@ void Simulator::run(int curTick)
 }
 
 float Simulator::getRandomProbability(){
-  return (float)rand() / (float)RAND_MAX; //generate random number between 0...+}
+  float val = (float)rand() / (float)RAND_MAX; //generate random number between 0...+}
+  return val;
 }
 
 int Simulator::calc_arrival_time(){
@@ -108,25 +112,23 @@ void Simulator::departure(float t) {
     departingPacket.senderID = stationID;
     departingPacket.isReceived = false;
 
-    if (localAccessToBus->bus.size() == 0){
-      packet_queue.pop();
-      localAccessToBus->bus.insert(std::make_pair(stationID, departingPacket));
-      state = TRANSMITTING;
-    }
-    else if (localAccessToBus->bus.size() >= 1){
-      bool isBusFree = true;
+    bool isBusFree = true;
+    // Else check if current station believes bus to be free (due to propagation delay)
+    if (localAccessToBus->bus.size() >= 1){
       for (Bus::iter iterator = localAccessToBus->bus.begin(); iterator != localAccessToBus->bus.end(); iterator++){
-
-        int wait = (iterator->second.timeToFirstBit).at(stationID);
+        float wait = (iterator->second.timeToFirstBit).at(stationID);
         if (wait <= 0 && !iterator->second.isReceived){
           isBusFree = false;
           //do nothing; (sensing medium) and the medium is busy
-          if (isNonPersistent)
+          if (isNonPersistent) {
             waitCounter = waitExpBackoff(currentI, bitTime)/tick_duration;
+            state = WAITING;
+          }
         }
       }
-      if(isBusFree){
-        if (isPPersistent && !isPPersistentAndHasWaited)
+    }
+    if(isBusFree){
+        if (isPPersistent)
         {
           float randVal = getRandomProbability();
           if (randVal > p)
@@ -139,16 +141,14 @@ void Simulator::departure(float t) {
         packet_queue.pop();
         localAccessToBus->bus.insert(std::make_pair(stationID, departingPacket));
         state = TRANSMITTING;
-      }
-      else
-      {
+    } else {
         if (isPPersistent && isPPersistentAndHasWaited)
         {
           waitCounter = waitExpBackoff(currentI, bitTime) / tick_duration;
           isPPersistentAndHasWaited = false;
+          state = WAITING;
           return;
         }
-      }
     }
   }
 }
