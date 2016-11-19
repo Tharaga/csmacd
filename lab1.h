@@ -19,14 +19,12 @@ public:
   void departure(float t);
   void detecting();
 
-  bool isInfiniteBuffer;
   std::queue<Packet> packet_queue;
 
 private:
   float getRandomProbability();
-  float numOfTicks;
   float lambda;
-  int propogationSpeed; // default is 2*10^8
+  float propagationSpeed; // default is 2*10^8
 
   float tArrival;
 

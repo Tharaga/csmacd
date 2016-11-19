@@ -15,10 +15,8 @@ static float waitExpBackoff(int i, float bitTime)
 
 
 Simulator::Simulator() :
-numOfTicks(0),
 lambda(0),
 tArrival(0),
-isInfiniteBuffer(true),
 currentI(0),
 waitCounter(0),
 state(IDLE)
@@ -31,16 +29,16 @@ Simulator::Simulator(Bus* bus, int id, int totalNumberOfStations, float transDel
   stationID = id;
   numNodes = totalNumberOfStations;
   transmissionDelay = transDelay;
-  propogationSpeed = 2 * pow(10.0, 8.0);
+  propagationSpeed = 2 * pow(10.0, 8.0);
   currentI = 0;
   waitCounter = 0;
   state = IDLE;
   // Calculate first packet arrival time
   tArrival = calc_arrival_time();
   lambda = arrivalRate;
-  isInfiniteBuffer = true;
   tick_duration = tickDuration;
   bitTime = bit_time;
+
   switch (persistenceMode)
   {
     case NONPERSISTENT:
@@ -68,8 +66,7 @@ void Simulator::run(int curTick)
     waitCounter--;
     if (waitCounter <= 0)
       state = IDLE;
-  }
-  else{
+  } else {
     // Increment running sum for average number of packets in queue
     if (state != TRANSMITTING)
       departure(curTick);
@@ -92,7 +89,6 @@ int Simulator::calc_arrival_time(){
 
 void Simulator::generation(float t){
   if (t >= tArrival) {
-
     Packet new_packet;
     tArrival = t + calc_arrival_time();
     //std::cout << "Station ID: " << stationID << " random arrival time is :" << tArrival << std::endl;
@@ -105,7 +101,7 @@ void Simulator::departure(float t) {
   if (packet_queue.size() > 0) {
     Packet departingPacket = packet_queue.front();
     for (int i = 0; i <= numNodes; i++){
-      float propDelay = abs(stationID - i) * 10 / (propogationSpeed * tick_duration);
+      float propDelay = (abs(stationID - i) * 10 )/propagationSpeed;
       (departingPacket.timeToFirstBit).insert(std::make_pair(i, propDelay));
       (departingPacket.timeToLastBit).insert(std::make_pair(i, propDelay + transmissionDelay));
     }
