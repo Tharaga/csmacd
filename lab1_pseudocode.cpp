@@ -151,7 +151,7 @@ void Simulator::departure(float t) {
 
 void Simulator::detecting(){
   for (Bus::iter iterator = localAccessToBus->bus.begin(); iterator != localAccessToBus->bus.end(); iterator++){
-    if (iterator->second.timeToLastBit.at(stationID) && iterator->first == stationID){
+    if (iterator->second.timeToLastBit.at(stationID) <= 0 && iterator->first == stationID){
       currentI = 0;
       state = IDLE;
     }
