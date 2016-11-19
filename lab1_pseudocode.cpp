@@ -23,7 +23,7 @@ state(IDLE)
 {
 }
 
-Simulator::Simulator(Bus* bus, int id, int totalNumberOfStations, float transDelay, int arrivalRate, float tickDuration, int persistenceMode, float pval, float bit_time)
+Simulator::Simulator(Bus* bus, int id, int totalNumberOfStations, float transDelay, int arrivalRate, float tickDuration, int persistenceMode, float pval, float bit_time, int num_ticks)
 {
   localAccessToBus = bus;
   stationID = id;
@@ -38,7 +38,7 @@ Simulator::Simulator(Bus* bus, int id, int totalNumberOfStations, float transDel
   lambda = arrivalRate;
   tick_duration = tickDuration;
   bitTime = bit_time;
-
+  numTicks = num_ticks;
   switch (persistenceMode)
   {
     case NONPERSISTENT:
@@ -83,14 +83,14 @@ float Simulator::getRandomProbability(){
 int Simulator::calc_arrival_time(){
   // 1 tick is interpreted as 1 ms
   double u = (double)rand() / (double)RAND_MAX; //generate random number between 0...1
-  int arrival_time = ((double)(-1 / lambda)*(double)log(1 - u)) / tick_duration;
+  int arrival_time = (((double)(-1 / lambda)*(double)log(1 - u)) / tick_duration);
   return arrival_time;
 }
 
 void Simulator::generation(float t){
   if (t >= tArrival) {
     Packet new_packet;
-    tArrival = t + calc_arrival_time();
+    tArrival = t + (int(calc_arrival_time())%(numTicks-int(t)));
     //std::cout << "Station ID: " << stationID << " random arrival time is :" << tArrival << std::endl;
     new_packet.generationTime = t;
     packet_queue.push(new_packet);
@@ -107,6 +107,7 @@ void Simulator::departure(float t) {
     }
     departingPacket.senderID = stationID;
     departingPacket.isReceived = false;
+    departingPacket.collided = false;
 
     bool isBusFree = true;
     // Else check if current station believes bus to be free (due to propagation delay)
@@ -158,21 +159,24 @@ void Simulator::detecting(){
     else{
       // detect for collisions
       if (localAccessToBus->bus.size() > 1){
-        if (iterator->first != stationID){
-          if (iterator->second.timeToFirstBit.at(stationID) <= 0){
+        if (iterator->second.timeToFirstBit.at(stationID) <= 0) {
+          if (iterator->first != stationID || (iterator->first == stationID && iterator->second.collided)) {
             localAccessToBus->isCollision = true;
             currentI++;
-            if (currentI < 10){
-              waitCounter = waitExpBackoff(currentI, bitTime)/tick_duration;
-              state = WAITING;
-            }
-            else{
-              //TODO: need to go to error state - what does that mean?
-              currentI = 0;
-            }
+              if (currentI < 10){
+                waitCounter = waitExpBackoff(currentI, bitTime)/tick_duration;
+                state = WAITING;
+                return;
+              } else{
+                //TODO: need to go to error state - what does that mean?
+                currentI = 0;
+                state = IDLE;
+                return;
+              }
           }
         }
       }
     }
   }
 }
+

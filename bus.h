@@ -1,5 +1,6 @@
 #include <queue>
 #include <map>
+#include <iostream>
 
 struct Packet {
   std::map<int, float> timeToFirstBit;
@@ -8,6 +9,7 @@ struct Packet {
   int generationTime;
   int transmittedTime;
   bool isReceived;
+  bool collided;
 };
 
 class Bus
