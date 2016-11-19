@@ -15,8 +15,8 @@ void main(int argc, char* argv[])
   } else {
     mode = NONPERSISTENT; 
   }
-  const int numberOfTicks = 1000000000;
-  const float tick_duration = 1/pow(10,8); //1/(pow(10,8));
+  const int numberOfTicks = 1000000;
+  const float tick_duration = 1/(pow(10,8));
   const float bit_time = 1 / float(rate);
   for (int arrivalRate = 1; arrivalRate <= 10; arrivalRate++) {
     float totalThroughput = 0;
@@ -39,6 +39,8 @@ void main(int argc, char* argv[])
     }
 
     std::cout << "Number of Collisions: " << centralBus.numberOfCollisions << std::endl;
+
+    std::cout << "Number of successful packets: " << centralBus.successfulPacketCount << std::endl;
     
     float throughput = (float(centralBus.successfulPacketCount * packetLength) / (float(numberOfTicks) * tick_duration)) / float(1000000);
     float delay = (float)centralBus.totalDelay / (float)centralBus.successfulPacketCount;
