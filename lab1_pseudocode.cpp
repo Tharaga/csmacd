@@ -3,12 +3,6 @@
 
 static float waitExpBackoff(int i, float bitTime)
 {
-  /*int r = 0;
-  int max = pow(double(2), double(i)) - 1;
-  //
-  if (max != 0) {
-    r = rand() % max;
-  }*/
   float r = (pow(double(2), double(i)) - 1) * ((float)rand() / (float)RAND_MAX);
   return r * 512 * bitTime;
 }
@@ -67,7 +61,6 @@ void Simulator::run(int curTick)
     if (waitCounter <= 0)
       state = IDLE;
   } else {
-    // Increment running sum for average number of packets in queue
     if (state != TRANSMITTING)
       departure(curTick);
     else
@@ -76,7 +69,7 @@ void Simulator::run(int curTick)
 }
 
 float Simulator::getRandomProbability(){
-  float val = (float)rand() / (float)RAND_MAX; //generate random number between 0...+}
+  float val = (float)rand() / (float)RAND_MAX; //generate random number between 0...1}
   return val;
 }
 
@@ -90,8 +83,9 @@ int Simulator::calc_arrival_time(){
 void Simulator::generation(float t){
   if (t >= tArrival) {
     Packet new_packet;
+	// to prevent the arrival time from being beyond the total simulation time, we added the mod to make sure
+	// that the calc_arrival_time is not greater than the number of ticks remaining in the simulation
     tArrival = t + (int(calc_arrival_time())%(numTicks-int(t)));
-    //std::cout << "Station ID: " << stationID << " random arrival time is :" << tArrival << std::endl;
     new_packet.generationTime = t;
     packet_queue.push(new_packet);
   }
@@ -139,13 +133,13 @@ void Simulator::departure(float t) {
         localAccessToBus->bus.insert(std::make_pair(stationID, departingPacket));
         state = TRANSMITTING;
     } else {
-        if (isPPersistent && isPPersistentAndHasWaited)
-        {
-          waitCounter = waitExpBackoff(currentI, bitTime) / tick_duration;
-          isPPersistentAndHasWaited = false;
-          state = WAITING;
-          return;
-        }
+		if (isPPersistent && isPPersistentAndHasWaited)
+		{
+			waitCounter = waitExpBackoff(currentI, bitTime) / tick_duration;
+			isPPersistentAndHasWaited = false;
+			state = WAITING;
+			return;
+		}
     }
   }
 }

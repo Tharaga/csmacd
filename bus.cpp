@@ -19,7 +19,6 @@ void Bus::setTickDuration(float inputTickDuration){
 void Bus::decrementWaits(int curTick){
   bool allPacketsCollided = false;
   if (isCollision){
-    //bus.clear();
     for (std::map<int, Packet>::iterator it = bus.begin(); it != bus.end();){
       it->second.collided = true;
       ++it;
@@ -27,6 +26,7 @@ void Bus::decrementWaits(int curTick){
     numberOfCollisions++;
     isCollision = false;
   }
+
   for (std::map<int, Packet>::iterator it = bus.begin(); it != bus.end();){
     if (it->second.collided) 
     {
@@ -35,6 +35,7 @@ void Bus::decrementWaits(int curTick){
     }
     ++it;
   }
+
   if (bus.size() > 0)
   {
     bool allNodesSense = true;
