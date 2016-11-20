@@ -1,4 +1,4 @@
-#include "lab1.h"
+#include "lab2.h"
 #include <math.h>
 
 static float waitExpBackoff(int i, float bitTime)

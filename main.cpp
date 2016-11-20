@@ -1,4 +1,4 @@
-#include "lab1.h"
+#include "lab2.h"
 
 void main(int argc, char* argv[])
 {
