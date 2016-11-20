@@ -15,8 +15,8 @@ void main(int argc, char* argv[])
   } else {
     mode = NONPERSISTENT; 
   }
-  const int numberOfTicks = 50000; //10000000;
-  const float tick_duration = 1/pow(10,3); //1/(pow(10,8));
+  const int numberOfTicks = 50000000; //10000000;
+  const float tick_duration = 1/pow(10,6); //1/(pow(10,8));
   const float bit_time = 1 / float(rate);
   for (int arrivalRate = 1; arrivalRate <= 10; arrivalRate++) {
     float totalThroughput = 0;

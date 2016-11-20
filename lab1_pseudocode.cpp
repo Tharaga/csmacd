@@ -151,10 +151,20 @@ void Simulator::departure(float t) {
 }
 
 void Simulator::detecting(){
+  if (localAccessToBus->bus.find(stationID) == localAccessToBus->bus.end())
+  { 
+    // packet not on bus due to race condition (sensed by all nodes and removed from bus)
+    currentI = 0;
+    state = IDLE;
+    return;
+  }
+
   for (Bus::iter iterator = localAccessToBus->bus.begin(); iterator != localAccessToBus->bus.end(); iterator++){
     if (iterator->second.timeToLastBit.at(stationID) <= 0 && iterator->first == stationID){
+      // Finished transmitting -- stop detecting
       currentI = 0;
       state = IDLE;
+      return;
     }
     else{
       // detect for collisions
@@ -163,16 +173,16 @@ void Simulator::detecting(){
           if (iterator->first != stationID || (iterator->first == stationID && iterator->second.collided)) {
             localAccessToBus->isCollision = true;
             currentI++;
-              if (currentI < 10){
-                waitCounter = waitExpBackoff(currentI, bitTime)/tick_duration;
-                state = WAITING;
-                return;
-              } else{
-                //TODO: need to go to error state - what does that mean?
-                currentI = 0;
-                state = IDLE;
-                return;
-              }
+            if (currentI < 10){
+              waitCounter = waitExpBackoff(currentI, bitTime)/tick_duration;
+              state = WAITING;
+              return;
+            } else {
+              // This is the error state when i saturates. Reset node to neutral state.
+              currentI = 0;
+              state = IDLE;
+              return;
+            }
           }
         }
       }
